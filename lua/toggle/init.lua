@@ -43,11 +43,20 @@ local function get_last_word_start(line, stop)
     return i
 end
 
-local function replace(line, new_word, start, stop)
-    return string.sub(line, 0, start - 1) .. new_word .. string.sub(line, stop + 1)
+local function remove_temp(line)
+    local _, _, orig_value = string.find(line, '=.*# ORIG: (.*)')
+
+    if orig_value == nil then
+        return false
+    end
+
+    local start, _, _ = string.find(line, '= (.*) #')
+    local new_line = string.sub(line, 0, start + 1) .. orig_value
+
+    return new_line
 end
 
-local function get_new_line(line)
+local function toggle_boolean(line)
     local language_lists = lists[vim.bo.filetype]
     if language_lists == nil then
         return nil
@@ -61,19 +70,36 @@ local function get_new_line(line)
     end
 
     if not start then
-        return nil
+        return false
     end
 
-    new_line = replace(line, new_word, start, stop)
+    local new_line = string.sub(line, 0, start - 1) .. new_word .. string.sub(line, stop + 1)
+
+    return new_line
+end
+
+local function set_temp(line)
+    local _, stop = string.find(line, '^.-=%s*')
+    local new_value = vim.fn.input('New value: ')
+    local new_line = string.sub(line, 1, stop) .. new_value .. ' # ORIG:' .. string.sub(line, stop)
 
     return new_line
 end
 
 local function Toggle()
     local line = vim.api.nvim_get_current_line()
-    local new_line = get_new_line(line)
 
-    if new_line ~= nil then
+    local new_line = remove_temp(line)
+
+    if not new_line then
+        new_line = toggle_boolean(line)
+    end
+
+    if not new_line then
+        new_line = set_temp(line)
+    end
+
+    if new_line then
         vim.api.nvim_set_current_line(new_line)
     end
 end
