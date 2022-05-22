@@ -3,7 +3,7 @@
 Q&D Neovim plugin for toggling booleans and temporary values in Python.
 
 Install with your favourite plugin manager, for example Packer:
-``````````````````
+
 ```
 use 'emilel/toggle'
 ```
@@ -22,7 +22,7 @@ vim.api.nvim_create_autocmd(
     'BufEnter',
     {
         pattern = '*.py*',
-        command = 'nnoremap <cr> <cmd>lua require("toggle").Toggle(false)<cr>',
+        command = 'nnoremap <silent> <cr> <cmd>lua require("toggle").Toggle(false)<cr>',
         group = python_group
     }
 )
@@ -30,7 +30,7 @@ vim.api.nvim_create_autocmd(
     'BufEnter',
     {
         pattern = '*.py*',
-        command = 'nnoremap <space><cr> <cmd>lua require("toggle").Toggle(true)<cr>',
+        command = 'nnoremap <silent> <space><cr> <cmd>lua require("toggle").Toggle(true)<cr>',
         group = python_group
     }
 )
